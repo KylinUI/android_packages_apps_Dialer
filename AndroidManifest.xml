@@ -305,6 +305,15 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
+        <activity android:name="com.android.incallui.InCallCardActivity"
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar"
+                  android:label="@string/phoneAppLabel"
+                  android:excludeFromRecents="true"
+                  android:launchMode="singleInstance"
+                  android:configChanges="keyboardHidden"
+                  android:exported="false"
+                  android:process="com.android.incallui">
         </activity>
 
         <service android:name="com.android.incallui.CallHandlerService"
