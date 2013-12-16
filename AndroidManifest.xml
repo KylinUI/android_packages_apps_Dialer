@@ -297,6 +297,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".preference.SpeedDialPreferenceActivity"
+            android:label="@string/speeddial_title"
+            android:theme="@style/SettingsLight" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service android:name="com.android.incallui.CallHandlerService"
                  android:process="com.android.incallui"
                  android:permission="android.permission.BIND_CALL_SERVICE">
