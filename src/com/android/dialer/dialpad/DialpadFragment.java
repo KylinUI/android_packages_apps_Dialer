@@ -31,6 +31,10 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.net.Uri;
@@ -38,6 +42,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
+import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 import android.provider.Contacts.People;
 import android.provider.Contacts.Phones;
@@ -203,7 +208,7 @@ public class DialpadFragment extends Fragment
      * isn't enclosed by the container.
      */
     private View mDigitsContainer;
-    private EditText mDigits;
+    private static EditText mDigits;
 
     /** Remembers if we need to clear digits field when the screen is completely gone. */
     private boolean mClearDigitsOnStop;
@@ -223,6 +228,16 @@ public class DialpadFragment extends Fragment
     private View mDialButton;
     private ListView mDialpadChooser;
     private DialpadChooserAdapter mDialpadChooserAdapter;
+
+    // Direct Call
+    private SensorManager mSensorManager;
+    private Sensor mProximitySensor;
+    private Sensor mAccelerometer;
+    private Sensor mMagnetometer;
+    private int SensorOrientationY;
+    private int SensorProximity;
+    private boolean initProx;
+    private boolean proxChanged;
 
     /**
      * Regular expression prohibiting manual phone call. Can be empty, which means "no rule".
@@ -350,6 +365,77 @@ public class DialpadFragment extends Fragment
             mDialpadQueryListener.onDialpadQueryChanged(mDigits.getText().toString());
         }
         updateDialAndDeleteButtonEnabledState();
+    }
+
+    private void registerSensorListener(Sensor sensor) {
+        if (sensor != null)
+            mSensorManager.registerListener(mSensorListener, sensor, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    private void unregisterSensorListener(Sensor sensor) {
+        if (sensor != null)
+            mSensorManager.unregisterListener(mSensorListener, sensor);
+    }
+
+    private SensorEventListener mSensorListener = new SensorEventListener() {
+        float[] mGravity;
+        float[] mGeomagnetic;
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            float value = event.values[0];
+            if (event.sensor.equals(mProximitySensor)) {
+                int currentProx = (int) value;
+                if (initProx) {
+                    SensorProximity = currentProx;
+                    initProx = false;
+                } else {
+                    if( SensorProximity > 0 && currentProx <= 3){
+                        proxChanged = true;
+                    }
+                }
+                SensorProximity = currentProx;
+            } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                mGravity = event.values;
+            } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                mGeomagnetic = event.values;
+            }
+            if (mGravity != null && mGeomagnetic != null) {
+                float R[] = new float[9];
+                float I[] = new float[9];
+                boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+                if (success) {
+                    float orientation[] = new float[3];
+                    SensorManager.getOrientation(R, orientation);
+                    SensorOrientationY = (int) (orientation[1] * 180f / Math.PI);
+                }
+            }
+            if (rightOrientation(SensorOrientationY) && SensorProximity <= 3 && proxChanged ) {
+                if (isDigitsEmpty() == false) {
+                    // unregister Listener to don't let the onSesorChanged run the
+                    // whole time
+                    unregisterSensorListener(mProximitySensor);
+                    unregisterSensorListener(mAccelerometer);
+                    unregisterSensorListener(mMagnetometer);
+
+                    // get number and attach it to an Intent.ACTION_CALL, then start
+                    // the Intent
+                    dialButtonPressed();
+                }
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+    };
+
+    public boolean rightOrientation(int orientation) {
+        if (orientation < -50 && orientation > -130) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -766,6 +852,25 @@ public class DialpadFragment extends Fragment
         stopWatch.lap("bes");
 
         stopWatch.stopAndLog(TAG, 50);
+
+        try {
+            if (Settings.System.getInt(getActivity().getContentResolver(),
+                    Settings.System.DIALER_DIRECT_CALL, 0) == 0 ? false : true) {
+                mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+                mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+                mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+                SensorOrientationY = 0;
+                SensorProximity = 0;
+                proxChanged = false;
+                initProx = true;
+                registerSensorListener(mProximitySensor);
+                registerSensorListener(mAccelerometer);
+                registerSensorListener(mMagnetometer);
+            }
+        } catch (Exception e) {
+            Log.w("ERROR", e.toString());
+        }
     }
 
     @Override
@@ -790,6 +895,17 @@ public class DialpadFragment extends Fragment
         mLastNumberDialed = EMPTY_NUMBER;  // Since we are going to query again, free stale number.
 
         SpecialCharSequenceMgr.cleanup();
+
+        try {
+            if (Settings.System.getInt(getActivity().getContentResolver(),
+                    Settings.System.DIALER_DIRECT_CALL, 0) == 0 ? false : true) {
+                unregisterSensorListener(mProximitySensor);
+                unregisterSensorListener(mAccelerometer);
+                unregisterSensorListener(mMagnetometer);
+            }
+        } catch (Exception e) {
+            Log.w("ERROR", e.toString());
+        }
     }
 
     @Override
