@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2013 The KylinMod OpenSource Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +32,17 @@ public final class PhoneCallDetailsViews {
     public final CallTypeIconsView callTypeIcons;
     public final TextView callTypeAndDate;
     public final TextView labelView;
+    public final TextView locationView;
 
     private PhoneCallDetailsViews(TextView nameView, View callTypeView,
-            CallTypeIconsView callTypeIcons, TextView callTypeAndDate, TextView labelView) {
+            CallTypeIconsView callTypeIcons, TextView callTypeAndDate, TextView labelView,
+			TextView locationView) {
         this.nameView = nameView;
         this.callTypeView = callTypeView;
         this.callTypeIcons = callTypeIcons;
         this.callTypeAndDate = callTypeAndDate;
         this.labelView = labelView;
+        this.locationView = locationView;
     }
 
     /**
@@ -53,7 +57,8 @@ public final class PhoneCallDetailsViews {
                 view.findViewById(R.id.call_type),
                 (CallTypeIconsView) view.findViewById(R.id.call_type_icons),
                 (TextView) view.findViewById(R.id.call_count_and_date),
-                (TextView) view.findViewById(R.id.label));
+                (TextView) view.findViewById(R.id.label),
+                (TextView) view.findViewById(R.id.location));
     }
 
     public static PhoneCallDetailsViews createForTest(Context context) {
@@ -61,6 +66,7 @@ public final class PhoneCallDetailsViews {
                 new TextView(context),
                 new View(context),
                 new CallTypeIconsView(context),
+                new TextView(context),
                 new TextView(context),
                 new TextView(context));
     }

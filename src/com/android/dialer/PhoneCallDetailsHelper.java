@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2013 The KylinMod OpenSource Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +19,8 @@ package com.android.dialer;
 
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.kylin.util.KyLinUtils;
+import android.kylin.location.PhoneLocation;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.telephony.PhoneNumberUtils;
@@ -121,7 +124,7 @@ public class PhoneCallDetailsHelper {
             nameText = displayNumber;
             if (TextUtils.isEmpty(details.geocode)
                     || mPhoneNumberUtilsWrapper.isVoicemailNumber(details.number)) {
-                numberText = mResources.getString(R.string.call_log_empty_gecode);
+                numberText = "";
             } else {
                 numberText = details.geocode;
             }
@@ -135,10 +138,19 @@ public class PhoneCallDetailsHelper {
                     numberFormattedLabel;
         }
 
+        if (KyLinUtils.isChineseLanguage()) {
+        	CharSequence PhoneLocationStr = PhoneLocation.getCityFromPhone(String.valueOf(details.number));
+        	views.locationView.setText(PhoneLocationStr);
+        	views.locationView.setVisibility(TextUtils.isEmpty(PhoneLocationStr) ? View.INVISIBLE : View.VISIBLE);
+        } else {
+        	views.locationView.setText(details.geocode);
+        	views.locationView.setVisibility(TextUtils.isEmpty(details.geocode) ? View.INVISIBLE : View.VISIBLE);
+        }
+
         views.nameView.setText(nameText);
 
         views.labelView.setText(labelText);
-        views.labelView.setVisibility(TextUtils.isEmpty(labelText) ? View.GONE : View.VISIBLE);
+        views.labelView.setVisibility(TextUtils.isEmpty(labelText) || labelText.equals(details.geocode) ? View.GONE : View.VISIBLE);
     }
 
     /** Sets the text of the header view for the details page of a phone call. */
