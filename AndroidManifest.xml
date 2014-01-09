@@ -147,12 +147,11 @@
                   android:theme="@style/CallDetailActivityTheme"
                   android:screenOrientation="portrait"
                   android:icon="@mipmap/ic_launcher_phone"
-                  android:parentActivityName="com.android.dialer.calllog.CallLogActivity"
-            >
+                  android:parentActivityName="com.android.dialer.calllog.CallLogActivity">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="vnd.android.cursor.item/calls"/>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/calls" />
             </intent-filter>
         </activity>
 
@@ -160,7 +159,7 @@
             android:label="@string/callStatsDetailTitle"
             android:theme="@style/CallDetailActivityTheme"
             android:screenOrientation="portrait"
-            android:icon="@mipmap/ic_launcher_phone" >
+            android:icon="@mipmap/ic_launcher_phone">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -169,50 +168,47 @@
 
         <activity android:name="com.android.contacts.common.test.FragmentTestActivity">
             <intent-filter>
-                <category android:name="android.intent.category.TEST"/>
+                <category android:name="android.intent.category.TEST" />
             </intent-filter>
         </activity>
 
         <!-- Backwards compatibility: "Phone" from Gingerbread and earlier -->
         <activity-alias android:name="DialtactsActivity"
             android:targetActivity=".DialtactsActivity"
-            android:exported="true"
-        />
+            android:exported="true" />
 
         <!-- Backwards compatibility: "Call log" from Gingerbread and earlier -->
         <activity-alias android:name="RecentCallsListActivity"
             android:targetActivity=".DialtactsActivity"
-            android:exported="true"
-        />
+            android:exported="true" />
 
         <!-- Backwards compatibility: "Call log" from ICS -->
         <activity-alias android:name=".activities.CallLogActivity"
             android:targetActivity=".DialtactsActivity"
-            android:exported="true"
-        />
+            android:exported="true" />
 
         <!-- Used to filter contacts list by account -->
         <activity
             android:name="com.android.contacts.common.list.AccountFilterActivity"
             android:label="@string/activity_title_contacts_filter"
-            android:theme="@style/ContactListFilterTheme"/>
+            android:theme="@style/ContactListFilterTheme" />
 
         <!-- Used to select display and sync groups -->
         <activity
             android:name="com.android.contacts.common.list.CustomContactListFilterActivity"
             android:label="@string/custom_list_filter"
-            android:theme="@style/ContactListFilterTheme"/>
+            android:theme="@style/ContactListFilterTheme" />
 
         <!-- vCard related -->
         <activity android:name="com.android.contacts.common.vcard.ImportVCardActivity"
                   android:configChanges="orientation|screenSize|keyboardHidden"
                   android:theme="@style/BackgroundOnlyTheme">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <data android:mimeType="text/directory"/>
-                <data android:mimeType="text/vcard"/>
-                <data android:mimeType="text/x-vcard"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.VIEW" />
+                <data android:mimeType="text/directory" />
+                <data android:mimeType="text/vcard" />
+                <data android:mimeType="text/x-vcard" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -220,25 +216,25 @@
                   android:configChanges="orientation|screenSize|keyboardHidden"
                   android:theme="@style/BackgroundOnlyTheme">
             <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-                <data android:mimeType="text/vcard"/>
-                <data android:mimeType="text/x-vcard"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <data android:mimeType="text/vcard" />
+                <data android:mimeType="text/x-vcard" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity android:name="com.android.contacts.common.vcard.CancelActivity"
-                  android:theme="@style/BackgroundOnlyTheme"/>
+                  android:theme="@style/BackgroundOnlyTheme" />
 
         <activity android:name="com.android.contacts.common.vcard.SelectAccountActivity"
-                  android:theme="@style/BackgroundOnlyTheme"/>
+                  android:theme="@style/BackgroundOnlyTheme" />
 
         <activity android:name="com.android.contacts.common.vcard.ExportVCardActivity"
-                  android:theme="@style/BackgroundOnlyTheme"/>
+                  android:theme="@style/BackgroundOnlyTheme" />
 
         <service
             android:name="com.android.contacts.common.vcard.VCardService"
-            android:exported="false"/>
+            android:exported="false" />
         <!-- end vCard related -->
 
         <receiver android:name=".calllog.CallLogReceiver"
@@ -248,11 +244,10 @@
                 <data
                     android:scheme="content"
                     android:host="com.android.voicemail"
-                    android:mimeType="vnd.android.cursor.item/voicemail"
-                />
+                    android:mimeType="vnd.android.cursor.item/voicemail" />
             </intent-filter>
             <intent-filter android:priority="100">
-                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
@@ -264,8 +259,7 @@
 
         <service
             android:name=".calllog.CallLogNotificationsService"
-            android:exported="false"
-        />
+            android:exported="false" />
 
         <!-- Service to update a contact -->
         <service
@@ -290,7 +284,7 @@
         <activity
             android:name=".preference.IPCallPreferenceActivity"
             android:label="@string/dialer_ipcall_title"
-            android:theme="@style/SettingsLight" >
+            android:theme="@style/SettingsLight">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -300,7 +294,7 @@
         <activity
             android:name=".preference.SpeedDialPreferenceActivity"
             android:label="@string/speeddial_title"
-            android:theme="@style/SettingsLight" >
+            android:theme="@style/SettingsLight">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -332,6 +326,5 @@
                 <action android:name="com.android.incallui.ACTION_HANG_UP_ONGOING_CALL" />
             </intent-filter>
         </receiver>
-
     </application>
 </manifest>
