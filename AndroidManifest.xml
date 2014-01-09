@@ -299,6 +299,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
 
         <activity android:name="com.android.incallui.InCallCardActivity"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar"
