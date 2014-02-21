@@ -696,7 +696,6 @@ public class DialerDatabaseHelper extends SQLiteOpenHelper {
             final SQLiteStatement insert = db.compileStatement(sqlInsert);
 
             while (nameCursor.moveToNext()) {
-                /** Computes a list of prefixes of a given contact name. */
                 char c[] = nameCursor.getString(columnIndexName).toCharArray();
                 String tmp = new String();
 
@@ -718,12 +717,12 @@ public class DialerDatabaseHelper extends SQLiteOpenHelper {
 
                 /** Computes a list of prefixes of a given contact name. */
                 final ArrayList<String> namePrefixes = SmartDialPrefix.generateNamePrefixes(tmp);
-                    for (String namePrefix : namePrefixes) {
-                        insert.bindLong(1, nameCursor.getLong(columnIndexContactId));
-                        insert.bindString(2, namePrefix);
-                        insert.executeInsert();
-                        insert.clearBindings();
-                    }
+
+                for (String namePrefix : namePrefixes) {
+                    insert.bindLong(1, nameCursor.getLong(columnIndexContactId));
+                    insert.bindString(2, namePrefix);
+                    insert.executeInsert();
+                    insert.clearBindings();
                 }
             }
 
@@ -976,7 +975,7 @@ public class DialerDatabaseHelper extends SQLiteOpenHelper {
                 final boolean nameMatches = true;//nameMatcher.matches(displayName);
                 final boolean numberMatches =
                         (nameMatcher.matchesNumber(phoneNumber, query) != null);
-                if (nameMatches || numberMatches)
+                if (nameMatches || numberMatches) {
                     /** If a contact has not been added, add it to the result and the hash set.*/
                     duplicates.add(contactMatch);
                     result.add(new ContactNumber(id, dataID, displayName, phoneNumber, lookupKey,
