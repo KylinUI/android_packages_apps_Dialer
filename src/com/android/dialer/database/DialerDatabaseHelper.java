@@ -27,7 +27,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.kylin.util.KyLinUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.BaseColumns;
@@ -683,7 +682,7 @@ public class DialerDatabaseHelper extends SQLiteOpenHelper {
      * @param nameCursor Cursor pointing to the list of distinct updated contacts.
      */
     @VisibleForTesting
-    void insertNamePrefixes(SQLiteDatabase db, Cursor nameCursor, Boolean isChinese) {
+    void insertNamePrefixes(SQLiteDatabase db, Cursor nameCursor/*, boolean isCN*/) {
         final int columnIndexName = nameCursor.getColumnIndex(
                 SmartDialDbColumns.DISPLAY_NAME_PRIMARY);
         final int columnIndexContactId = nameCursor.getColumnIndex(SmartDialDbColumns.CONTACT_ID);
@@ -698,30 +697,27 @@ public class DialerDatabaseHelper extends SQLiteOpenHelper {
 
             while (nameCursor.moveToNext()) {
                 /** Computes a list of prefixes of a given contact name. */
-                Object[] temp=new Object[]{1};
-                if (isChinese) {
-                    char c[] = nameCursor.getString(columnIndexName).toCharArray();
-                    String tmp = new String();
+                char c[] = nameCursor.getString(columnIndexName).toCharArray();
+                String tmp = new String();
 
-                    for (int i = 0; i < c.length; i++) {
-                        if (HanziToPinyin.getInstance().isChineseWords(String.valueOf(c[i]))) {
-                            String pinyin = HanziToPinyin.getInstance().getFullPinYin(
-                                    String.valueOf(c[i]));
-                            tmp += pinyin.toLowerCase(Locale.ENGLISH);
-                            /**
-                             *Add a " " to make pinyin words like English
-                             *like 张三 to pinyin Zhang San
-                             *As English John Smith to John Smith
-                             */
-                            tmp += " ";
-                        } else {
-                            tmp += String.valueOf(c[i]);
-                        }
+                for (int i = 0; i < c.length; i++) {
+                    if (HanziToPinyin.getInstance().isChineseWords(String.valueOf(c[i]))) {
+                        String pinyin = HanziToPinyin.getInstance().getFullPinYin(
+                                String.valueOf(c[i]));
+                        tmp += pinyin.toLowerCase(Locale.ENGLISH);
+                        /**
+                         *Add a " " to make pinyin words like English
+                         *like 张三 to pinyin Zhang San
+                         *As English John Smith to John Smith
+                         */
+                        tmp += " ";
+                    } else {
+                        tmp += String.valueOf(c[i]);
                     }
                 }
-                for (Object name:temp) {
-                    /** Computes a list of prefixes of a given contact name. */
-                    final ArrayList<String> namePrefixes = SmartDialPrefix.generateNamePrefixes(tmp);
+
+                /** Computes a list of prefixes of a given contact name. */
+                final ArrayList<String> namePrefixes = SmartDialPrefix.generateNamePrefixes(tmp);
                     for (String namePrefix : namePrefixes) {
                         insert.bindLong(1, nameCursor.getLong(columnIndexContactId));
                         insert.bindString(2, namePrefix);
@@ -835,7 +831,7 @@ public class DialerDatabaseHelper extends SQLiteOpenHelper {
             if (nameCursor != null) {
                 try {
                     /** Inserts prefixes of names into the prefix table.*/
-                    insertNamePrefixes(db, nameCursor, KyLinUtils.isChineseLanguage());
+                    insertNamePrefixes(db, nameCursor);
                     if (DEBUG) {
                         stopWatch.lap("Finished building the name prefix table");
                     }
@@ -977,10 +973,10 @@ public class DialerDatabaseHelper extends SQLiteOpenHelper {
                  * If the contact has either the name or number that matches the query, add to the
                  * result.
                  */
-                final boolean nameMatches = nameMatcher.matches(displayName);
+                final boolean nameMatches = true;//nameMatcher.matches(displayName);
                 final boolean numberMatches =
                         (nameMatcher.matchesNumber(phoneNumber, query) != null);
-                if (true || numberMatches) {
+                if (nameMatches || numberMatches)
                     /** If a contact has not been added, add it to the result and the hash set.*/
                     duplicates.add(contactMatch);
                     result.add(new ContactNumber(id, dataID, displayName, phoneNumber, lookupKey,
