@@ -16,6 +16,8 @@
 
 package com.android.dialer.database;
 
+import android.R.integer;
+import android.R.string;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -38,7 +40,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.contacts.common.util.StopWatch;
+import com.android.dialer.DialerApplication;
 import com.android.dialer.R;
+import com.android.dialer.calllog.DefaultVoicemailNotifier.NewCallsQuery;
 import com.android.dialer.dialpad.SmartDialNameMatcher;
 import com.android.dialer.dialpad.SmartDialPrefix;
 import com.android.dialer.util.HanziToPinyin;
@@ -49,8 +53,8 @@ import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -696,13 +700,28 @@ public class DialerDatabaseHelper extends SQLiteOpenHelper {
                 /** Computes a list of prefixes of a given contact name. */
                 Object[] temp=new Object[]{1};
                 if (isChinese) {
-                    temp = HanziToPinyin.getPinyin(nameCursor.getString(columnIndexName)).toArray();
-                }
-                else{
-                    temp[0] = nameCursor.getString(columnIndexName);
+                    char c[] = nameCursor.getString(columnIndexName).toCharArray();
+                    String tmp = new String();
+
+                    for (int i = 0; i < c.length; i++) {
+                        if (HanziToPinyin.getInstance().isChineseWords(String.valueOf(c[i]))) {
+                            String pinyin = HanziToPinyin.getInstance().getFullPinYin(
+                                    String.valueOf(c[i]));
+                            tmp += pinyin.toLowerCase(Locale.ENGLISH);
+                            /**
+                             *Add a " " to make pinyin words like English
+                             *like 张三 to pinyin Zhang San
+                             *As English John Smith to John Smith
+                             */
+                            tmp += " ";
+                        } else {
+                            tmp += String.valueOf(c[i]);
+                        }
+                    }
                 }
                 for (Object name:temp) {
-                    final ArrayList<String> namePrefixes =SmartDialPrefix.generateNamePrefixes(name.toString());
+                    /** Computes a list of prefixes of a given contact name. */
+                    final ArrayList<String> namePrefixes = SmartDialPrefix.generateNamePrefixes(tmp);
                     for (String namePrefix : namePrefixes) {
                         insert.bindLong(1, nameCursor.getLong(columnIndexContactId));
                         insert.bindString(2, namePrefix);
